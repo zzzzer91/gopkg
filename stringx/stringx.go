@@ -1,6 +1,23 @@
 package stringx
 
-import "github.com/zzzzer91/gopkg/conv"
+import (
+	"reflect"
+	"unsafe"
+)
+
+func String2bytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&bh))
+}
+
+func Bytes2string(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
+}
 
 func Reverse(s string) string {
 	bs := []byte(s)
@@ -10,5 +27,5 @@ func Reverse(s string) string {
 		l++
 		r--
 	}
-	return conv.Bytes2string(bs)
+	return Bytes2string(bs)
 }
