@@ -12,7 +12,6 @@ var logger = func() *zap.SugaredLogger {
 	config.DisableStacktrace = true
 	config.Level.SetLevel(zapcore.InfoLevel)
 	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.TimeKey = "time"
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	encoderConfig.EncodeCaller = func(ec zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 		if !ec.Defined {
