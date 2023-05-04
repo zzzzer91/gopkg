@@ -22,13 +22,12 @@ func RangeDate(start, end time.Time) func() time.Time {
 	}
 }
 
-// GetDateCst 获取 cst 时区今天时间为 0 的 Time
-func GetDateCst() time.Time {
+func GetTodayZeroCst() time.Time {
 	t := time.Now()
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, CstZone)
 }
 
-// ParseDateInCst 解析 `2022-08-10` 这样的字符串为 cst 时区
+// ParseDateInCst parses the string like `2022-08-10` into the CST timezone.
 func ParseDateInCst(date string) (time.Time, error) {
 	return time.ParseInLocation("2006-01-02", date, CstZone)
 }
@@ -45,7 +44,7 @@ func GetMondayOfNextWeek(t time.Time) time.Time {
 	return GetMondayOfWeek(t).AddDate(0, 0, 7)
 }
 
-// 计算日期相差多少月
+// SubMonth calculates the number of months between two dates.
 func SubMonth(t1, t2 time.Time) (month int) {
 	y1 := t1.Year()
 	y2 := t2.Year()
@@ -61,7 +60,7 @@ func SubMonth(t1, t2 time.Time) (month int) {
 	}
 }
 
-// 获取某个时间下个月第一天
+// GetFirstDayOfNextMonth gets the first day of next month from a given date.
 func GetFirstDayOfNextMonth(t time.Time) time.Time {
 	t = t.AddDate(0, 1, 0)
 	return time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, CstZone)
