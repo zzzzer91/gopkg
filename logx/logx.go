@@ -53,41 +53,21 @@ func Fatalf(format string, args ...any) {
 }
 
 func Debug(args ...any) {
-	logger.Debug(args...)
-}
-
-func Info(args ...any) {
-	logger.Info(args...)
-}
-
-func Warn(args ...any) {
-	logger.Warn(args...)
-}
-
-func Error(args ...any) {
-	logger.Error(args...)
-}
-
-func Fatal(args ...any) {
-	logger.Fatal(args...)
-}
-
-func Debugln(args ...any) {
 	logger.Debugln(args...)
 }
 
-func Infoln(args ...any) {
+func Info(args ...any) {
 	logger.Infoln(args...)
 }
 
-func Warnln(args ...any) {
+func Warn(args ...any) {
 	logger.Warnln(args...)
 }
 
-func Errorln(args ...any) {
+func Error(args ...any) {
 	logger.Errorln(args...)
 }
 
-func Fatalln(args ...any) {
+func Fatal(args ...any) {
 	logger.Fatalln(args...)
 }
