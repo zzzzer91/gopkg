@@ -48,6 +48,10 @@ func Errorf(format string, args ...any) {
 	logger.Errorf(format, args...)
 }
 
+func Fatalf(format string, args ...any) {
+	logger.Fatalf(format, args...)
+}
+
 func Debug(args ...any) {
 	logger.Debug(args...)
 }
@@ -64,6 +68,10 @@ func Error(args ...any) {
 	logger.Error(args...)
 }
 
+func Fatal(args ...any) {
+	logger.Fatal(args...)
+}
+
 func Debugln(args ...any) {
 	logger.Debugln(args...)
 }
@@ -78,4 +86,8 @@ func Warnln(args ...any) {
 
 func Errorln(args ...any) {
 	logger.Errorln(args...)
+}
+
+func Fatalln(args ...any) {
+	logger.Fatalln(args...)
 }
