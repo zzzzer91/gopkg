@@ -1,6 +1,8 @@
 package jsonx
 
 import (
+	"io"
+
 	"github.com/bytedance/sonic"
 	"github.com/pkg/errors"
 )
@@ -53,4 +55,20 @@ func Unmarshal2(data []byte, obj any) {
 
 func UnmarshalFromString2(data string, obj any) {
 	_ = sonic.ConfigDefault.UnmarshalFromString(data, obj)
+}
+
+func MarshalToWriter(writer io.Writer, obj any) error {
+	err := sonic.ConfigDefault.NewEncoder(writer).Encode(obj)
+	if err != nil {
+		return errors.Wrap(err, "MarshalToWriter error")
+	}
+	return nil
+}
+
+func UnmarshalFromReader(reader io.Reader, obj any) error {
+	err := sonic.ConfigDefault.NewDecoder(reader).Decode(obj)
+	if err != nil {
+		return errors.Wrap(err, "UnmarshalFromReader error")
+	}
+	return nil
 }
