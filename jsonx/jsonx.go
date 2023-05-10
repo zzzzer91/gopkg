@@ -46,3 +46,11 @@ func MarshalToString2(obj any) string {
 	res, _ := sonic.ConfigDefault.MarshalToString(obj)
 	return res
 }
+
+func Unmarshal2(data []byte, obj any) {
+	_ = sonic.ConfigDefault.Unmarshal(data, obj)
+}
+
+func UnmarshalFromString2(data string, obj any) {
+	_ = sonic.ConfigDefault.UnmarshalFromString(data, obj)
+}
