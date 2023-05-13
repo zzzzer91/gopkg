@@ -9,7 +9,7 @@ import (
 )
 
 func TestEncode(t *testing.T) {
-	f, err := os.Open("./testdata/Isaac.Newton-Opticks.txt")
+	f, err := os.Open("../testdata/Isaac.Newton-Opticks.txt")
 	assert.Nil(t, err)
 	bs, err := io.ReadAll(f)
 	assert.Nil(t, err)
