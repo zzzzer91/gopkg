@@ -1,1 +1,1 @@
-Some useful GO packages.
+Some useful Go packages.
