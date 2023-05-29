@@ -1,6 +1,7 @@
 package wpool
 
 import (
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -83,6 +84,8 @@ func (p *CachedGoroutinePool) Submit(task Task) {
 // Its behavior is like FixedThreadPool in Java, but it supports setting idle time.
 // And the task queue has a capacity limit.
 type FixedGoroutinePool struct {
+	sync.Mutex
+
 	size  int32
 	tasks chan Task
 
@@ -107,6 +110,16 @@ func (p *FixedGoroutinePool) Size() int32 {
 // If the task queue is full, it will be blocked.
 func (p *FixedGoroutinePool) Submit(task Task) {
 	if atomic.LoadInt32(&p.size) < p.maxSize {
+		p.createWorker()
+	}
+	// WARN: If the task queue is full, it will be blocked here.
+	p.tasks <- task
+}
+
+func (p *FixedGoroutinePool) createWorker() {
+	p.Lock()
+	defer p.Unlock()
+	if p.size < p.maxSize {
 		// create new worker
 		atomic.AddInt32(&p.size, 1)
 		go func() {
@@ -120,7 +133,7 @@ func (p *FixedGoroutinePool) Submit(task Task) {
 			idleTimer := time.NewTimer(p.maxIdleTime)
 			for {
 				select {
-				case task = <-p.tasks:
+				case task := <-p.tasks:
 					task()
 				case <-idleTimer.C:
 					// worker exits
@@ -134,7 +147,4 @@ func (p *FixedGoroutinePool) Submit(task Task) {
 			}
 		}()
 	}
-
-	// WARN: If the task queue is full, it will be blocked here.
-	p.tasks <- task
 }
