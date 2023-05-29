@@ -1,19 +1,3 @@
-/*
- * Copyright 2021 CloudWeGo Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package wpool
 
 import (
@@ -27,8 +11,9 @@ import (
 // Task is the function that the worker will execute.
 type Task func()
 
-// Pool is a worker pool bind with some idle goroutines.
-type Pool struct {
+// CachedGoroutinePool is a worker pool bind with some idle goroutines.
+// Its behavior is like CachedThreadPool in Java.
+type CachedGoroutinePool struct {
 	size  int32
 	tasks chan Task
 
@@ -39,9 +24,8 @@ type Pool struct {
 	maxIdleTime time.Duration
 }
 
-// New creates a new worker pool.
-func New(maxIdle int, maxIdleTime time.Duration) *Pool {
-	return &Pool{
+func NewCachedGoroutinePool(maxIdle int, maxIdleTime time.Duration) *CachedGoroutinePool {
+	return &CachedGoroutinePool{
 		tasks:       make(chan Task),
 		maxIdle:     int32(maxIdle),
 		maxIdleTime: maxIdleTime,
@@ -49,12 +33,12 @@ func New(maxIdle int, maxIdleTime time.Duration) *Pool {
 }
 
 // Size returns the number of the running workers.
-func (p *Pool) Size() int32 {
+func (p *CachedGoroutinePool) Size() int32 {
 	return atomic.LoadInt32(&p.size)
 }
 
-// Go creates/reuses a worker to run task.
-func (p *Pool) Go(task Task) {
+// Submit creates/reuses a worker to run task.
+func (p *CachedGoroutinePool) Submit(task Task) {
 	select {
 	case p.tasks <- task:
 		// reuse exist worker
@@ -67,7 +51,7 @@ func (p *Pool) Go(task Task) {
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				logx.Errorf("panic in wpool: error=%v: stack=%s", r, stackx.RecordStack(2))
+				logx.Errorf("panic in CachedGoroutinePool: error=%v: stack=%s", r, stackx.RecordStack(2))
 			}
 			atomic.AddInt32(&p.size, -1)
 		}()
@@ -93,4 +77,64 @@ func (p *Pool) Go(task Task) {
 			idleTimer.Reset(p.maxIdleTime)
 		}
 	}()
+}
+
+// NewFixedGoroutinePool is a worker pool bind with some idle goroutines.
+// Its behavior is like FixedThreadPool in Java, but it supports setting idle time.
+// And the task queue has a capacity limit.
+type FixedGoroutinePool struct {
+	size  int32
+	tasks chan Task
+
+	maxSize     int32
+	maxIdleTime time.Duration
+}
+
+func NewFixedGoroutinePool(maxSize int, maxIdleTime time.Duration, maxTaskQueueSize int) *FixedGoroutinePool {
+	return &FixedGoroutinePool{
+		tasks:       make(chan Task, maxTaskQueueSize),
+		maxSize:     int32(maxSize),
+		maxIdleTime: maxIdleTime,
+	}
+}
+
+// Size returns the number of the running workers.
+func (p *FixedGoroutinePool) Size() int32 {
+	return atomic.LoadInt32(&p.size)
+}
+
+// Submit creates/reuses a worker to run task.
+// If the task queue is full, it will be blocked.
+func (p *FixedGoroutinePool) Submit(task Task) {
+	if atomic.LoadInt32(&p.size) < p.maxSize {
+		// create new worker
+		atomic.AddInt32(&p.size, 1)
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logx.Errorf("panic in FixedGoroutinePool: error=%v: stack=%s", r, stackx.RecordStack(2))
+				}
+				atomic.AddInt32(&p.size, -1)
+			}()
+			// waiting for new task
+			idleTimer := time.NewTimer(p.maxIdleTime)
+			for {
+				select {
+				case task = <-p.tasks:
+					task()
+				case <-idleTimer.C:
+					// worker exits
+					return
+				}
+
+				if !idleTimer.Stop() {
+					<-idleTimer.C
+				}
+				idleTimer.Reset(p.maxIdleTime)
+			}
+		}()
+	}
+
+	// WARN: If the task queue is full, it will be blocked here.
+	p.tasks <- task
 }

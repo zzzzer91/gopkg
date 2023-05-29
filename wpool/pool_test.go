@@ -25,8 +25,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWPool(t *testing.T) {
-	p := New(1, time.Millisecond*100)
+func TestCachedGoroutinePool(t *testing.T) {
+	p := NewCachedGoroutinePool(1, time.Millisecond*100)
 	var (
 		sum  int32
 		wg   sync.WaitGroup
@@ -35,7 +35,7 @@ func TestWPool(t *testing.T) {
 	assert.True(t, p.Size() == 0)
 	for i := 0; i < size; i++ {
 		wg.Add(1)
-		p.Go(func() {
+		p.Submit(func() {
 			defer wg.Done()
 			atomic.AddInt32(&sum, 1)
 		})
@@ -46,6 +46,31 @@ func TestWPool(t *testing.T) {
 	assert.Equal(t, atomic.LoadInt32(&sum), int32(size))
 	time.Sleep(time.Millisecond * 10) // waiting for workers finished
 	assert.True(t, p.Size() == 1)
+	time.Sleep(time.Millisecond * 100) // waiting for idle timeout
+	assert.True(t, p.Size() == 0)
+}
+
+func TestFixedGoroutinePool(t *testing.T) {
+	p := NewFixedGoroutinePool(4, time.Millisecond*100, 1000)
+	var (
+		sum  int32
+		wg   sync.WaitGroup
+		size = 100
+	)
+	assert.True(t, p.Size() == 0)
+	for i := 0; i < size; i++ {
+		wg.Add(1)
+		p.Submit(func() {
+			defer wg.Done()
+			atomic.AddInt32(&sum, 1)
+		})
+	}
+	assert.True(t, p.Size() == 4)
+
+	wg.Wait()
+	assert.Equal(t, atomic.LoadInt32(&sum), int32(size))
+	time.Sleep(time.Millisecond * 10) // waiting for workers finished
+	assert.True(t, p.Size() == 4)
 	time.Sleep(time.Millisecond * 100) // waiting for idle timeout
 	assert.True(t, p.Size() == 0)
 }
