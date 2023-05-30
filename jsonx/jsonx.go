@@ -10,7 +10,7 @@ import (
 func Marshal(obj any) ([]byte, error) {
 	res, err := sonic.ConfigDefault.Marshal(obj)
 	if err != nil {
-		return nil, errors.Wrap(err, "Marshal error")
+		return nil, errors.WithStack(err)
 	}
 	return res, nil
 }
@@ -18,7 +18,7 @@ func Marshal(obj any) ([]byte, error) {
 func MarshalToString(obj any) (string, error) {
 	res, err := sonic.ConfigDefault.MarshalToString(obj)
 	if err != nil {
-		return "", errors.Wrap(err, "MarshalToString error")
+		return "", errors.WithStack(err)
 	}
 	return res, nil
 }
@@ -26,7 +26,7 @@ func MarshalToString(obj any) (string, error) {
 func Unmarshal(data []byte, obj any) error {
 	err := sonic.ConfigDefault.Unmarshal(data, obj)
 	if err != nil {
-		return errors.Wrap(err, "Unmarshal error")
+		return errors.WithStack(err)
 	}
 	return nil
 }
@@ -34,7 +34,7 @@ func Unmarshal(data []byte, obj any) error {
 func UnmarshalFromString(data string, obj any) error {
 	err := sonic.ConfigDefault.UnmarshalFromString(data, obj)
 	if err != nil {
-		return errors.Wrap(err, "UnmarshalFromString error")
+		return errors.WithStack(err)
 	}
 	return nil
 }
@@ -50,17 +50,17 @@ func MarshalToString2(obj any) string {
 }
 
 func Unmarshal2(data []byte, obj any) {
-	_ = sonic.ConfigDefault.Unmarshal(data, obj)
+	sonic.ConfigDefault.Unmarshal(data, obj)
 }
 
 func UnmarshalFromString2(data string, obj any) {
-	_ = sonic.ConfigDefault.UnmarshalFromString(data, obj)
+	sonic.ConfigDefault.UnmarshalFromString(data, obj)
 }
 
 func MarshalToWriter(writer io.Writer, obj any) error {
 	err := sonic.ConfigDefault.NewEncoder(writer).Encode(obj)
 	if err != nil {
-		return errors.Wrap(err, "MarshalToWriter error")
+		return errors.WithStack(err)
 	}
 	return nil
 }
@@ -68,7 +68,7 @@ func MarshalToWriter(writer io.Writer, obj any) error {
 func UnmarshalFromReader(reader io.Reader, obj any) error {
 	err := sonic.ConfigDefault.NewDecoder(reader).Decode(obj)
 	if err != nil {
-		return errors.Wrap(err, "UnmarshalFromReader error")
+		return errors.WithStack(err)
 	}
 	return nil
 }
