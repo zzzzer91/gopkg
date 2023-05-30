@@ -2,6 +2,8 @@ package slicex
 
 import (
 	"strconv"
+
+	"github.com/pkg/errors"
 )
 
 func String2Int(a []string) ([]int, error) {
@@ -9,7 +11,7 @@ func String2Int(a []string) ([]int, error) {
 	for _, e := range a {
 		n, err := strconv.Atoi(e)
 		if err != nil {
-			return nil, err
+			return nil, errors.WithStack(err)
 		}
 		res = append(res, n)
 	}

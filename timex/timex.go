@@ -1,6 +1,10 @@
 package timex
 
-import "time"
+import (
+	"time"
+
+	"github.com/pkg/errors"
+)
 
 var (
 	CstZone = time.FixedZone("CST", int((8 * time.Hour).Seconds()))
@@ -28,8 +32,13 @@ func GetTodayZeroCst() time.Time {
 }
 
 // ParseDateInCst parses the string like `2022-08-10` into the CST timezone.
-func ParseDateInCst(date string) (time.Time, error) {
-	return time.ParseInLocation("2006-01-02", date, CstZone)
+func ParseDateInCst(date string) (t time.Time, err error) {
+	t, err = time.ParseInLocation("2006-01-02", date, CstZone)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	return
 }
 
 func GetMondayOfWeek(t time.Time) time.Time {
