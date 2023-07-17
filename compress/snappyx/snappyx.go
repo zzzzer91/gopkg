@@ -23,5 +23,5 @@ func DecodeToString(src []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return stringx.Bytes2string(res), nil
+	return stringx.BytesToString(res), nil
 }

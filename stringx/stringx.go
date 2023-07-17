@@ -5,7 +5,7 @@ import (
 	"unsafe"
 )
 
-func String2bytes(s string) []byte {
+func StringToBytes(s string) []byte {
 	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	bh := reflect.SliceHeader{
 		Data: sh.Data,
@@ -15,7 +15,7 @@ func String2bytes(s string) []byte {
 	return *(*[]byte)(unsafe.Pointer(&bh))
 }
 
-func Bytes2string(b []byte) string {
+func BytesToString(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
@@ -27,5 +27,5 @@ func Reverse(s string) string {
 		l++
 		r--
 	}
-	return Bytes2string(bs)
+	return BytesToString(bs)
 }
