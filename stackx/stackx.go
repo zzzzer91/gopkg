@@ -9,16 +9,17 @@ import (
 	"github.com/pkg/errors"
 )
 
-// RecordStack return current stack string.
+// RecordStack returns the current call stack string.
 func RecordStack(skip int) string {
 	return CallersFrames2Str(GetCallersFrames(skip + 2))
 }
 
-// GetStackFromError return current error stack string.
+// GetStackFromError returns the error stack string.
 func GetStackFromError(err error) string {
 	return CallersFrames2Str(GetCallersFramesFromError(err))
 }
 
+// CallersFrames2Str converts runtime.Frames to string.
 func CallersFrames2Str(callersFrames *runtime.Frames) string {
 	if callersFrames == nil {
 		return ""
@@ -34,7 +35,7 @@ func CallersFrames2Str(callersFrames *runtime.Frames) string {
 	return s[:len(s)-1]
 }
 
-// GetCallersFrames returns current stack.
+// GetCallersFrames returns the current call stack.
 func GetCallersFrames(skip int) *runtime.Frames {
 	const maxDepth = 16
 	var pcs [maxDepth]uintptr
@@ -42,7 +43,7 @@ func GetCallersFrames(skip int) *runtime.Frames {
 	return runtime.CallersFrames(pcs[:n])
 }
 
-// GetCallersFramesFromError try to get error's stack.
+// GetCallersFramesFromError attempts to retrieve the stack trace of an error.
 func GetCallersFramesFromError(err error) *runtime.Frames {
 	stackTracer := tryFindErrStackTacker(err)
 	if stackTracer == nil {
@@ -60,7 +61,7 @@ type errCauser interface {
 	Cause() error
 }
 
-// tryFindErrStackTacker try to find last err that implements errStackTracer.
+// tryFindErrStackTacker attempts to find the earliest error that implements errStackTracer.
 func tryFindErrStackTacker(err error) errStackTracer {
 	var st errStackTracer
 	for err != nil {
