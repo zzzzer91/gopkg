@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/bytedance/sonic v1.8.8
 	github.com/golang/snappy v0.0.4
+	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.8.1
 	go.uber.org/zap v1.24.0
