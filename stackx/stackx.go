@@ -27,6 +27,9 @@ func CallersFrames2Str(callersFrames *runtime.Frames) string {
 	var sb strings.Builder
 	for f, again := callersFrames.Next(); again; f, again = callersFrames.Next() {
 		sb.WriteString(f.Function)
+		sb.WriteByte('\n')
+		sb.WriteByte('\t')
+		sb.WriteString(f.File)
 		sb.WriteByte(':')
 		sb.WriteString(strconv.Itoa(f.Line))
 		sb.WriteByte('\n')
