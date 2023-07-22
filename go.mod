@@ -1,6 +1,6 @@
 module github.com/zzzzer91/gopkg
 
-go 1.19
+go 1.20
 
 require (
 	github.com/bytedance/sonic v1.8.8
