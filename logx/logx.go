@@ -1,8 +1,6 @@
 package logx
 
 import (
-	"strconv"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -15,13 +13,6 @@ var logger = func() *zap.SugaredLogger {
 	config.Level = loggerLevel
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoderConfig.EncodeCaller = func(ec zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-		if !ec.Defined {
-			enc.AppendString("undefined")
-		} else {
-			enc.AppendString(ec.Function + ":" + strconv.Itoa(ec.Line))
-		}
-	}
 	config.EncoderConfig = encoderConfig
 	l, _ := config.Build(zap.AddCallerSkip(1))
 	sugar := l.Sugar()

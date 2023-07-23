@@ -6,7 +6,7 @@ func Test_Log(t *testing.T) {
 	Debug("Debug")
 	Debugf("Debug %s", "f")
 	Info("Info")
-	Info("Info %s", "f")
+	Infof("Info %s", "f")
 	Warn("Warn")
 	Warnf("Warn %s", "f")
 	Error("Error")
