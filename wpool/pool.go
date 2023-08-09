@@ -52,7 +52,7 @@ func (p *CachedGoroutinePool) Submit(task Task) {
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				logx.Errorf("panic in CachedGoroutinePool: error=%v: stack=%s", r, stackx.RecordStack(2))
+				logx.Errorf("panic in CachedGoroutinePool: error=%v: stack=%s", r, stackx.StackToString(stackx.Callers(2)))
 			}
 			atomic.AddInt32(&p.size, -1)
 		}()
@@ -125,7 +125,7 @@ func (p *FixedGoroutinePool) createWorker() {
 		go func() {
 			defer func() {
 				if r := recover(); r != nil {
-					logx.Errorf("panic in FixedGoroutinePool: error=%v: stack=%s", r, stackx.RecordStack(2))
+					logx.Errorf("panic in FixedGoroutinePool: error=%v: stack=%s", r, stackx.StackToString(stackx.Callers(2)))
 				}
 				atomic.AddInt32(&p.size, -1)
 			}()

@@ -37,7 +37,7 @@ func TestCachedGoroutinePool(t *testing.T) {
 		wg.Add(1)
 		p.Submit(func() {
 			defer wg.Done()
-			atomic.AddInt32(&sum, 1)
+			panic("test")
 		})
 	}
 	assert.True(t, p.Size() != 0)
