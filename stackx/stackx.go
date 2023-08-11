@@ -9,6 +9,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const stackMaxDepth = 8
+
 type StackTracer interface {
 	StackTrace() errors.StackTrace
 }
@@ -26,8 +28,7 @@ func (s *Stack) StackTrace() errors.StackTrace {
 
 // Callers returns the current call stack.
 func Callers(skip int) *Stack {
-	const depth = 16
-	var pcs [depth]uintptr
+	var pcs [stackMaxDepth]uintptr
 	n := runtime.Callers(skip+2, pcs[:])
 	var st Stack = pcs[:n]
 	return &st
@@ -49,6 +50,7 @@ func StackToString(st StackTracer) string {
 	}
 	tmp := st.StackTrace()
 	callersFrames := runtime.CallersFrames(*(*[]uintptr)(unsafe.Pointer(&tmp)))
+	i := 0
 	var sb strings.Builder
 	for f, again := callersFrames.Next(); again; f, again = callersFrames.Next() {
 		sb.WriteString(f.Function)
@@ -58,6 +60,10 @@ func StackToString(st StackTracer) string {
 		sb.WriteByte(':')
 		sb.WriteString(strconv.Itoa(f.Line))
 		sb.WriteByte('\n')
+		i++
+		if i == stackMaxDepth {
+			break
+		}
 	}
 	s := sb.String()
 	return s[:len(s)-1]
@@ -68,11 +74,17 @@ func GetStackStringFromError(err error) string {
 	return StackToString(GetStackFromError(err))
 }
 
-type errCauser interface {
+type errorCauser interface {
 	Cause() error
 }
 
+type errorUnwrap interface {
+	Unwrap() error
+}
+
 // tryFindErrStackTacker attempts to find the earliest error that implements errStackTracer.
+//
+//nolint:errorlint
 func tryFindErrStackTacker(err error) StackTracer {
 	var st StackTracer
 	for err != nil {
@@ -80,11 +92,13 @@ func tryFindErrStackTacker(err error) StackTracer {
 		if ok {
 			st = v
 		}
-		cause, ok := err.(errCauser)
-		if !ok {
+		if ec, ok := err.(errorCauser); ok {
+			err = ec.Cause()
+		} else if eu, ok := err.(errorUnwrap); ok {
+			err = eu.Unwrap()
+		} else {
 			break
 		}
-		err = cause.Cause()
 	}
 	return st
 }
