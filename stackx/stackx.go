@@ -65,6 +65,9 @@ func StackToString(st StackTracer) string {
 			break
 		}
 	}
+	if i == 0 {
+		return ""
+	}
 	s := sb.String()
 	return s[:len(s)-1]
 }
