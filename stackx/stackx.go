@@ -77,14 +77,6 @@ func GetStackStringFromError(err error) string {
 	return StackToString(GetStackFromError(err))
 }
 
-type errorCauser interface {
-	Cause() error
-}
-
-type errorUnwrap interface {
-	Unwrap() error
-}
-
 // tryFindErrStackTacker attempts to find the earliest error that implements errStackTracer.
 //
 //nolint:errorlint
@@ -95,12 +87,13 @@ func tryFindErrStackTacker(err error) StackTracer {
 		if ok {
 			st = v
 		}
-		if ec, ok := err.(errorCauser); ok {
-			err = ec.Cause()
-		} else if eu, ok := err.(errorUnwrap); ok {
-			err = eu.Unwrap()
-		} else {
-			break
+		switch x := err.(type) {
+		case interface{ Unwrap() error }:
+			err = x.Unwrap()
+		case interface{ Cause() error }:
+			err = x.Cause()
+		default:
+			return st
 		}
 	}
 	return st
