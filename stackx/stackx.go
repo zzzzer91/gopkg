@@ -36,11 +36,7 @@ func Callers(skip int) *Stack {
 
 // GetStackFromError attempts to retrieve the stack trace of an error.
 func GetStackFromError(err error) StackTracer {
-	stackTracer := tryFindErrStackTacker(err)
-	if stackTracer == nil {
-		return nil
-	}
-	return stackTracer
+	return tryFindErrStackTacker(err)
 }
 
 // StackToString converts runtime.Frames to string.
@@ -72,7 +68,7 @@ func StackToString(st StackTracer) string {
 	return s[:len(s)-1]
 }
 
-// GetStackStringFromError returns the error stack string.
+// GetStackStringFromError returns the string of error stack.
 func GetStackStringFromError(err error) string {
 	return StackToString(GetStackFromError(err))
 }
