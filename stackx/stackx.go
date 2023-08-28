@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const stackMaxDepth = 8
+const stackMaxDepth = 5
 
 type StackTracer interface {
 	StackTrace() errors.StackTrace
