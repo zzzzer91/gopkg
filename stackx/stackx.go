@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const stackMaxDepth = 5
+const stackMaxDepth = 9
 
 type StackTracer interface {
 	StackTrace() errors.StackTrace
@@ -19,11 +19,10 @@ type StackTracer interface {
 type Stack []uintptr
 
 func (s *Stack) StackTrace() errors.StackTrace {
-	f := make([]errors.Frame, len(*s))
-	for i := 0; i < len(f); i++ {
-		f[i] = errors.Frame((*s)[i])
+	if s == nil {
+		return nil
 	}
-	return f
+	return *(*errors.StackTrace)(unsafe.Pointer(s))
 }
 
 // Callers returns the current call stack.
@@ -40,20 +39,26 @@ func GetStackFromError(err error) StackTracer {
 }
 
 // StackToString converts runtime.Frames to string.
-func StackToString(st StackTracer) string {
-	if st == nil || st.StackTrace() == nil {
+// The format is as follows:
+// (*T).f | xxx/stackx/stackx_test.go:20
+// f1 | xxx/stackx/stackx_test.go:25
+// f2 | xxx/stackx/stackx_test.go:29
+func StackToString(stackTracer StackTracer) string {
+	if stackTracer == nil {
 		return ""
 	}
-	tmp := st.StackTrace()
-	callersFrames := runtime.CallersFrames(*(*[]uintptr)(unsafe.Pointer(&tmp)))
+	st := stackTracer.StackTrace()
+	if st == nil {
+		return ""
+	}
+	callersFrames := runtime.CallersFrames(*(*[]uintptr)(unsafe.Pointer(&st)))
 	i := 0
 	var sb strings.Builder
 	for f, again := callersFrames.Next(); again; f, again = callersFrames.Next() {
-		sb.WriteString(f.Function)
-		sb.WriteByte('\n')
-		sb.WriteByte('\t')
+		sb.WriteString(formatFunction(f.Function))
+		sb.WriteString(" | ")
 		sb.WriteString(f.File)
-		sb.WriteByte(':')
+		sb.WriteString(":")
 		sb.WriteString(strconv.Itoa(f.Line))
 		sb.WriteByte('\n')
 		i++
@@ -93,4 +98,31 @@ func tryFindErrStackTacker(err error) StackTracer {
 		}
 	}
 	return st
+}
+
+const (
+	dunno     = "???"
+	centerDot = "·"
+	dot       = "."
+	slash     = "/"
+)
+
+// formatFunction returns, if possible, the name of the formatFunction.
+func formatFunction(name string) string {
+	// The name includes the path name to the package, which is unnecessary
+	// since the file name is already included.  Plus, it has center dots.
+	// That is, we see
+	//	runtime/debug.*T·ptrmethod
+	// and want
+	//	*T.ptrmethod
+	// Also the package path might contain dot (e.g. code.google.com/...),
+	// so first eliminate the path prefix
+	if lastSlash := strings.LastIndex(name, slash); lastSlash >= 0 {
+		name = name[lastSlash+1:]
+	}
+	if period := strings.Index(name, dot); period >= 0 {
+		name = name[period+1:]
+	}
+	name = strings.ReplaceAll(name, centerDot, dot)
+	return name
 }
