@@ -2,7 +2,7 @@ package logx
 
 import "testing"
 
-func Test_Log(t *testing.T) {
+func Test_Log(_ *testing.T) {
 	Debug("Debug")
 	Debugf("Debug %s", "f")
 	Info("Info")

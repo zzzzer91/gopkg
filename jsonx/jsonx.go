@@ -39,22 +39,34 @@ func UnmarshalFromString(data string, obj any) error {
 	return nil
 }
 
-func Marshal2(obj any) []byte {
-	res, _ := sonic.ConfigDefault.Marshal(obj)
+func MustMarshal(obj any) []byte {
+	res, err := sonic.ConfigDefault.Marshal(obj)
+	if err != nil {
+		panic(err)
+	}
 	return res
 }
 
-func MarshalToString2(obj any) string {
-	res, _ := sonic.ConfigDefault.MarshalToString(obj)
+func MustMarshalToString(obj any) string {
+	res, err := sonic.ConfigDefault.MarshalToString(obj)
+	if err != nil {
+		panic(err)
+	}
 	return res
 }
 
-func Unmarshal2(data []byte, obj any) {
-	sonic.ConfigDefault.Unmarshal(data, obj)
+func MustUnmarshal(data []byte, obj any) {
+	err := sonic.ConfigDefault.Unmarshal(data, obj)
+	if err != nil {
+		panic(err)
+	}
 }
 
-func UnmarshalFromString2(data string, obj any) {
-	sonic.ConfigDefault.UnmarshalFromString(data, obj)
+func MustUnmarshalFromString(data string, obj any) {
+	err := sonic.ConfigDefault.UnmarshalFromString(data, obj)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func MarshalToWriter(writer io.Writer, obj any) error {

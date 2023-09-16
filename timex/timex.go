@@ -64,9 +64,8 @@ func SubMonth(t1, t2 time.Time) (month int) {
 			return (y1-y2)*12 + m1 - m2
 		}
 		return (y1-y2-1)*12 + (12 + m1 - m2)
-	} else {
-		return m1 - m2
 	}
+	return m1 - m2
 }
 
 // GetFirstDayOfNextMonth gets the first day of next month from a given date.
