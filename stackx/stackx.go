@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const stackMaxDepth = 9
+const stackMaxDepth = 7
 
 type StackTracer interface {
 	StackTrace() errors.StackTrace
@@ -100,15 +100,15 @@ func tryFindErrStackTacker(err error) StackTracer {
 	return st
 }
 
-const (
-	dunno     = "???"
-	centerDot = "·"
-	dot       = "."
-	slash     = "/"
-)
-
 // formatFunction returns, if possible, the name of the formatFunction.
 func formatFunction(name string) string {
+	const (
+		dunno     = "???"
+		centerDot = "·"
+		dot       = "."
+		slash     = "/"
+	)
+
 	// The name includes the path name to the package, which is unnecessary
 	// since the file name is already included.  Plus, it has center dots.
 	// That is, we see
