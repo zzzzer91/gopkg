@@ -1,22 +1,21 @@
 package stringx
 
 import (
-	"reflect"
 	"unsafe"
 )
 
-func StringToBytes(s string) []byte {
-	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
-	bh := reflect.SliceHeader{
-		Data: sh.Data,
-		Len:  sh.Len,
-		Cap:  sh.Len,
+func StringToBytes(str string) []byte {
+	if str == "" {
+		return nil
 	}
-	return *(*[]byte)(unsafe.Pointer(&bh))
+	return unsafe.Slice(unsafe.StringData(str), len(str))
 }
 
-func BytesToString(b []byte) string {
-	return *(*string)(unsafe.Pointer(&b))
+func BytesToString(bs []byte) string {
+	if len(bs) == 0 {
+		return ""
+	}
+	return unsafe.String(unsafe.SliceData(bs), len(bs))
 }
 
 func Reverse(s string) string {
