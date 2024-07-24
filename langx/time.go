@@ -1,10 +1,20 @@
-package timex
+package langx
 
 import (
 	"time"
 
 	"github.com/pkg/errors"
 )
+
+var Now = time.Now
+
+func DateTimeToUnixStamp(s string) int64 {
+	t, err := time.ParseInLocation(time.DateTime, s, time.UTC)
+	if err != nil {
+		return 0
+	}
+	return t.UnixMilli()
+}
 
 var (
 	CstZone = time.FixedZone("CST", int((8 * time.Hour).Seconds()))

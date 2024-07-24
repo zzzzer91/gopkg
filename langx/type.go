@@ -1,4 +1,4 @@
-package typex
+package langx
 
 import (
 	"fmt"

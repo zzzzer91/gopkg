@@ -3,7 +3,7 @@ package snappyx
 import (
 	"github.com/golang/snappy"
 	"github.com/pkg/errors"
-	"github.com/zzzzer91/gopkg/stringx"
+	"github.com/zzzzer91/gopkg/langx"
 )
 
 func Decode(src []byte) ([]byte, error) {
@@ -23,5 +23,5 @@ func DecodeToString(src []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return stringx.BytesToString(res), nil
+	return langx.BytesToString(res), nil
 }

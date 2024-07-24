@@ -1,8 +1,6 @@
-package stringx
+package langx
 
-import (
-	"unsafe"
-)
+import "unsafe"
 
 func StringToBytes(str string) []byte {
 	if str == "" {
