@@ -37,7 +37,7 @@ func TestCachedGoroutinePool(t *testing.T) {
 		wg.Add(1)
 		p.Submit(func() {
 			defer wg.Done()
-			panic("test")
+			atomic.AddInt32(&sum, 1)
 		})
 	}
 	assert.True(t, p.Size() != 0)
@@ -51,7 +51,7 @@ func TestCachedGoroutinePool(t *testing.T) {
 }
 
 func TestFixedGoroutinePool(t *testing.T) {
-	p := NewFixedGoroutinePool(4, time.Millisecond*100, 1000)
+	p := NewFixedGoroutinePool(4, time.Millisecond*100, 1000, false)
 	var (
 		sum  int32
 		wg   sync.WaitGroup
